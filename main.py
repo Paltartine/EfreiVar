@@ -6,12 +6,13 @@ from discord.ext import commands
 
 import aiohttp
 
-from utils import clear_downloads, download_video, get_time_from_seconds, get_color_from_action
+from utils import clear_downloads, download_video, get_time_from_seconds, get_color_from_action, get_recap_message
 
 load_dotenv()
 token = os.environ['DISCORD_BOT_TOKEN']
 
 bot = commands.Bot(command_prefix='/', intents=discord.Intents.all())
+
 
 @bot.event
 async def on_ready():
@@ -52,8 +53,17 @@ async def var(interaction: discord.Interaction, arg: str):
                             file=discord.File(filepath),
                             embed=embed
                         )
+                        print("action : " + name + " extraite")
                 else:
                     raise Exception("Le match est introuvable")
+
+        embed_recap = discord.Embed(
+            title=f"Fin de l'extraction des actions du match, récap des buts :",
+            description=await get_recap_message(arg),
+            color=discord.Color.green()
+        )
+        await interaction.followup.send(embed=embed_recap)
+        print("Fin de l'extraction")
     except Exception as e:
         print(e)
         await interaction.followup.send("Une erreur est survenue, interruption de la commande !")
