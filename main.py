@@ -17,6 +17,33 @@ async def on_ready():
         print(e)
 
 
+DOWNLOADS_DIR = "./downloads"
+os.makedirs(DOWNLOADS_DIR, exist_ok=True)
+
+def clear_downloads(folder: str = "./downloads"):
+    """Delete all files from download folder"""
+    if not os.path.exists(folder):
+        return
+
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+        except Exception as e:
+            print(f"⚠️ Impossible de supprimer {file_path} : {e}")
+
+async def download_video(url: str, filename: str) -> str:
+    """Download video from URL and return his local path"""
+    filepath = os.path.join(DOWNLOADS_DIR, filename)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            if resp.status == 200:
+                with open(filepath, "wb") as f:
+                    f.write(await resp.read())
+                return filepath
+            else:
+                raise Exception(f"Échec du téléchargement (status {resp.status})")
 
 @bot.tree.command(name='var', description='Renvoie les vidéos de tous les buts du match donné')
 async def var(interaction: discord.Interaction, arg: str):
@@ -48,6 +75,10 @@ async def var(interaction: discord.Interaction, arg: str):
 
                         # Suivi avec l'embed
                         await interaction.followup.send(embed=embed)# si une vidéo existe, télécharge et upload sur Discord
+
+                        filepath = await download_video(video_url, video_url.split("/")[-1])
+                        await interaction.followup.send(file=discord.File(filepath))
+                        return
 
                 else:
                     raise Exception("Une erreur est survenur")
