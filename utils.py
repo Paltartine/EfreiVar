@@ -77,7 +77,7 @@ async def get_recap_message(match_id):
                             current_team = new_team
                             if current_team != "":
                                 message += "\n"
-                            message += f"{new_team} :\n"
+                            message += f"**{new_team} :**\n"
                         message += f"{player['player_name']} : {player['nb_goals']} {'buts' if player['nb_goals'] > 1 else 'but'}\n"
                     return message
                 else:
