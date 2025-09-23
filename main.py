@@ -10,6 +10,7 @@ from utils import clear_downloads, download_video, get_time_from_seconds, get_co
 
 load_dotenv()
 token = os.environ['DISCORD_BOT_TOKEN']
+guild_id = os.environ['DISCORD_GUILD_ID']
 
 bot = commands.Bot(command_prefix='/', intents=discord.Intents.all())
 
@@ -21,10 +22,9 @@ async def on_ready():
     except Exception as e:
         print(e)
 
-@bot.tree.command(name='var', description='Renvoie les vidéos de tous les buts du match donné')
-async def var(interaction: discord.Interaction, arg: str):
+@bot.tree.command(name='var_v2', description='Renvoie les vidéos de tous les buts du match donné en test')
+async def var_v2(interaction: discord.Interaction, arg: str):
     match_url = f"https://api-front.lefive.fr/splf/v1/matches/{arg}/matchevents"
-
     await interaction.response.send_message(f"Récupération des résultats du match {arg} en cours...")
 
     try:
@@ -33,6 +33,9 @@ async def var(interaction: discord.Interaction, arg: str):
             async with session.get(match_url) as response:
                 if 'application/json' in response.headers.get('content-type', ''):
                     data = await response.json()  # récupère le JSON dans un dictionnaire
+                    if not data:
+                        await interaction.followup.send(f"Le match d'id {arg} n'existe pas ou l'API ne fonctionne pas !")
+                        return
                     for goal in data:
                         name = goal.get("name", "Inconnu")
                         time = goal.get("time", "Inconnu")
