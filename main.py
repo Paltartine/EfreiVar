@@ -22,7 +22,7 @@ async def on_ready():
     except Exception as e:
         print(e)
 
-@bot.tree.command(name='var_v2', description='Renvoie les vidéos de tous les buts du match donné en test')
+@bot.tree.command(name='var_v2', description='Renvoie les vidéos de tous les buts du match donné')
 async def var_v2(interaction: discord.Interaction, arg: str):
     match_url = f"https://api-front.lefive.fr/splf/v1/matches/{arg}/matchevents"
     await interaction.response.send_message(f"Récupération des résultats du match {arg} en cours...")
